@@ -97,8 +97,10 @@ named!(parse_thumb4<Instruction>,
 named!(parse_thumb<Vec<Instruction>>,
     many0!(
         alt!(
-            parse_thumb1 |
+            // thumb2 has more significant bits in match, so has to go first,
+            // as not to conflict with thumb1 instruction
             parse_thumb2 |
+            parse_thumb1 |
             parse_thumb3 |
             parse_thumb4
         )
