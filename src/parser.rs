@@ -1,4 +1,6 @@
 use nom::*;
+use opcode::OpcodeAddSub;
+use enum_primitive::FromPrimitive;
 
 #[derive(Debug)]
 enum Instruction {
@@ -9,7 +11,7 @@ enum Instruction {
         destination_register: u8,
     },
     AddSub {
-        opcode: u8,
+        opcode: OpcodeAddSub,
         operand: u8,
         source_register: u8,
         destination_register: u8,
@@ -53,7 +55,9 @@ named!(parse_thumb2<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::AddSub {
-                opcode: opcode,
+                opcode: OpcodeAddSub::from_u8(opcode).unwrap_or_else(|| {
+                    panic!("Unrecognized opcode: {:#010x}", opcode);
+                }),
                 operand: operand,
                 source_register: source_register,
                 destination_register: destination_register,
@@ -117,6 +121,6 @@ mod tests {
         let add_immediate_thumb2 = vec![ 0b00011101, 0b11001000, ];
         let add_immediate_128_to_r7 = vec![ 0b00110111, 0b10000000 ];
         let rotate_r4_right_by_r5 = vec![ 0b01000001, 0b11101100 ];
-        println!("{:?}", parse_thumb(&rotate_r4_right_by_r5));
+        println!("{:?}", parse_thumb(&add_immediate_thumb2));
     }
 }
