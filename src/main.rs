@@ -12,6 +12,8 @@ extern crate num;
 mod parser;
 mod opcode;
 
+mod cpu;
+
 mod errors { error_chain!{} }
 use errors::*;
 quick_main!(run);
