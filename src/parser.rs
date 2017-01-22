@@ -1,11 +1,11 @@
 use nom::*;
-use opcode::OpcodeAddSub;
+use opcode::*;
 use enum_primitive::FromPrimitive;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 enum Instruction {
     Shifted {
-        opcode: u8,
+        opcode: OpcodeShifted,
         offset: u8,
         source_register: u8,
         destination_register: u8,
@@ -16,13 +16,13 @@ enum Instruction {
         source_register: u8,
         destination_register: u8,
     },
-    Immedate {
-        opcode: u8,
+    Immediate {
+        opcode: OpcodeImmediate,
         destination_register: u8,
         unsigned_immediate: u8,
     },
     AluOperation {
-        opcode: u8,
+        opcode: OpcodeAluOperation,
         source_register: u8,
         destination_register: u8,
     }
@@ -37,7 +37,8 @@ named!(parse_thumb1<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::Shifted {
-                opcode: opcode,
+                opcode: OpcodeShifted::from_u8(opcode)
+                    .expect("Unrecognized opcode"),
                 offset: offset,
                 source_register: source_register,
                 destination_register: destination_register,
@@ -55,9 +56,8 @@ named!(parse_thumb2<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::AddSub {
-                opcode: OpcodeAddSub::from_u8(opcode).unwrap_or_else(|| {
-                    panic!("Unrecognized opcode: {:#010x}", opcode);
-                }),
+                opcode: OpcodeAddSub::from_u8(opcode)
+                    .expect("Unrecognized opcode"),
                 operand: operand,
                 source_register: source_register,
                 destination_register: destination_register,
@@ -73,8 +73,9 @@ named!(parse_thumb3<Instruction>,
             opcode: take_bits!(u8, 2) >>
             destination_register: take_bits!(u8, 3) >>
             unsigned_immediate: take_bits!(u8, 8) >>
-            (Instruction::Immedate {
-                opcode: opcode,
+            (Instruction::Immediate {
+                opcode: OpcodeImmediate::from_u8(opcode)
+                    .expect("Unrecognized opcode"),
                 destination_register: destination_register,
                 unsigned_immediate: unsigned_immediate,
             })
@@ -90,7 +91,8 @@ named!(parse_thumb4<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::AluOperation {
-                opcode: opcode,
+                opcode: OpcodeAluOperation::from_u8(opcode)
+                    .expect("Unrecognized opcode"),
                 source_register: source_register,
                 destination_register: destination_register,
             })
@@ -116,11 +118,45 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_instruction() {
-        let move_shift_thumb1 = vec![ 0b00011101, 0b11001000, ];
-        let add_immediate_thumb2 = vec![ 0b00011101, 0b11001000, ];
-        let add_immediate_128_to_r7 = vec![ 0b00110111, 0b10000000 ];
-        let rotate_r4_right_by_r5 = vec![ 0b01000001, 0b11101100 ];
-        println!("{:?}", parse_thumb(&add_immediate_thumb2));
+    fn parse_shifted() {
+        let move_shift = vec![ 0b00010101, 0b11001000, ];
+        let (_, res) = parse_thumb1(&move_shift).unwrap();
+        assert_eq!(res, Instruction::Shifted {
+            opcode: OpcodeShifted::ArithmeticShiftRight,
+            offset: 23,
+            source_register: 1,
+            destination_register: 0,
+        });
+    }
+
+    #[test]
+    fn parse_instructions() {
+        let hex = vec![
+            0b00011101, 0b11001000, // Add immediate
+            0b00110111, 0b10000000, // Add immediate 128 to r7
+            0b01000001, 0b11101100, // Rotate r4 right by r5
+        ];
+
+        let (_, instructions) = parse_thumb(&hex).unwrap();
+
+        let expected_instructions = [
+            Instruction::AddSub {
+                opcode: OpcodeAddSub::AddImmediate,
+                operand: 7,
+                source_register: 1,
+                destination_register: 0,
+            },
+            Instruction::Immediate {
+                opcode: OpcodeImmediate::Add,
+                destination_register: 7,
+                unsigned_immediate: 128,
+            },
+            Instruction::AluOperation {
+                opcode: OpcodeAluOperation::ROR,
+                source_register: 5,
+                destination_register: 4,
+            }];
+
+        assert_eq!(instructions, expected_instructions);
     }
 }
