@@ -9,3 +9,4 @@ license = "GNU Affero"
 
 [dependencies]
 error-chain = "0.8.1"
+nom = "2.0.1"
