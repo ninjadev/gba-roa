@@ -3,27 +3,23 @@ use nom::*;
 #[derive(Debug)]
 enum Instruction {
     THUMB1 {
-        tag: u8,
         opcode: u8,
         offset: u8,
         source_register: u8,
         destination_register: u8,
     },
     THUMB2 {
-        tag: u8,
         opcode: u8,
         operand: u8,
         source_register: u8,
         destination_register: u8,
     },
     THUMB3 {
-        tag: u8,
         opcode: u8,
         destination_register: u8,
         unsigned_immediate: u8,
     },
     THUMB4 {
-        tag: u8,
         opcode: u8,
         source_register: u8,
         destination_register: u8,
@@ -39,7 +35,6 @@ named!(parse_thumb1<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::THUMB1 {
-                tag: tag,
                 opcode: opcode,
                 offset: offset,
                 source_register: source_register,
@@ -58,7 +53,6 @@ named!(parse_thumb2<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::THUMB2 {
-                tag: tag,
                 opcode: opcode,
                 operand: operand,
                 source_register: source_register,
@@ -76,7 +70,6 @@ named!(parse_thumb3<Instruction>,
             destination_register: take_bits!(u8, 3) >>
             unsigned_immediate: take_bits!(u8, 8) >>
             (Instruction::THUMB3 {
-                tag: tag,
                 opcode: opcode,
                 destination_register: destination_register,
                 unsigned_immediate: unsigned_immediate,
@@ -93,7 +86,6 @@ named!(parse_thumb4<Instruction>,
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
             (Instruction::THUMB4 {
-                tag: tag,
                 opcode: opcode,
                 source_register: source_register,
                 destination_register: destination_register,
