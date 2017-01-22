@@ -3,7 +3,7 @@ use opcode::*;
 use enum_primitive::FromPrimitive;
 
 #[derive(Debug, PartialEq, Eq)]
-enum Instruction {
+pub enum Instruction {
     Shifted {
         opcode: OpcodeShifted,
         offset: u8,
