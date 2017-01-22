@@ -25,7 +25,7 @@ pub enum Instruction {
         opcode: OpcodeAluOperation,
         source_register: u8,
         destination_register: u8,
-    }
+    },
 }
 
 named!(parse_thumb1<Instruction>,
@@ -139,23 +139,22 @@ mod tests {
 
         let (_, instructions) = parse_thumb(&hex).unwrap();
 
-        let expected_instructions = [
-            Instruction::AddSub {
-                opcode: OpcodeAddSub::AddImmediate,
-                operand: 7,
-                source_register: 1,
-                destination_register: 0,
-            },
-            Instruction::Immediate {
-                opcode: OpcodeImmediate::Add,
-                destination_register: 7,
-                unsigned_immediate: 128,
-            },
-            Instruction::AluOperation {
-                opcode: OpcodeAluOperation::ROR,
-                source_register: 5,
-                destination_register: 4,
-            }];
+        let expected_instructions = [Instruction::AddSub {
+                                         opcode: OpcodeAddSub::AddImmediate,
+                                         operand: 7,
+                                         source_register: 1,
+                                         destination_register: 0,
+                                     },
+                                     Instruction::Immediate {
+                                         opcode: OpcodeImmediate::Add,
+                                         destination_register: 7,
+                                         unsigned_immediate: 128,
+                                     },
+                                     Instruction::AluOperation {
+                                         opcode: OpcodeAluOperation::ROR,
+                                         source_register: 5,
+                                         destination_register: 4,
+                                     }];
 
         assert_eq!(instructions, expected_instructions);
     }

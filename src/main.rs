@@ -14,7 +14,9 @@ mod opcode;
 
 mod cpu;
 
-mod errors { error_chain!{} }
+mod errors {
+    error_chain!{}
+}
 use errors::*;
 quick_main!(run);
 
