@@ -8,3 +8,4 @@ keywords = ["GBA", "Game Boy Advance", "Game Boy", "Rust"]
 license = "GNU Affero"
 
 [dependencies]
+error-chain = "0.8.1"
