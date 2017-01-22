@@ -1,0 +1,10 @@
+[package]
+name = "gba-roa"
+version = "0.1.0"
+authors = ["Aleksander Vognild Burkow <aleksanderburkow@gmail.com>",
+           "Christoffer Tønnessen <christoffer.tonnessen@gmail.com>"]
+description = "Game Boy Advance Emulator written in Rust"
+keywords = ["GBA", "Game Boy Advance", "Game Boy", "Rust"]
+license = "GNU Affero"
+
+[dependencies]
