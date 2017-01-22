@@ -2,24 +2,24 @@ use nom::*;
 
 #[derive(Debug)]
 enum Instruction {
-    THUMB1 {
+    Shifted {
         opcode: u8,
         offset: u8,
         source_register: u8,
         destination_register: u8,
     },
-    THUMB2 {
+    AddSub {
         opcode: u8,
         operand: u8,
         source_register: u8,
         destination_register: u8,
     },
-    THUMB3 {
+    Immedate {
         opcode: u8,
         destination_register: u8,
         unsigned_immediate: u8,
     },
-    THUMB4 {
+    AluOperation {
         opcode: u8,
         source_register: u8,
         destination_register: u8,
@@ -34,7 +34,7 @@ named!(parse_thumb1<Instruction>,
             offset: take_bits!(u8, 5) >>
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
-            (Instruction::THUMB1 {
+            (Instruction::Shifted {
                 opcode: opcode,
                 offset: offset,
                 source_register: source_register,
@@ -52,7 +52,7 @@ named!(parse_thumb2<Instruction>,
             operand: take_bits!(u8, 3) >>
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
-            (Instruction::THUMB2 {
+            (Instruction::AddSub {
                 opcode: opcode,
                 operand: operand,
                 source_register: source_register,
@@ -69,7 +69,7 @@ named!(parse_thumb3<Instruction>,
             opcode: take_bits!(u8, 2) >>
             destination_register: take_bits!(u8, 3) >>
             unsigned_immediate: take_bits!(u8, 8) >>
-            (Instruction::THUMB3 {
+            (Instruction::Immedate {
                 opcode: opcode,
                 destination_register: destination_register,
                 unsigned_immediate: unsigned_immediate,
@@ -85,7 +85,7 @@ named!(parse_thumb4<Instruction>,
             opcode: take_bits!(u8, 4) >>
             source_register: take_bits!(u8, 3) >>
             destination_register: take_bits!(u8, 3) >>
-            (Instruction::THUMB4 {
+            (Instruction::AluOperation {
                 opcode: opcode,
                 source_register: source_register,
                 destination_register: destination_register,
