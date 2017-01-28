@@ -1,5 +1,5 @@
-use parser::Instruction;
-use parser::Instruction::AddSub;
+use instruction::Instruction;
+use instruction::Instruction::AddSub;
 
 #[derive(Debug)]
 pub struct ARM7TDMI {
