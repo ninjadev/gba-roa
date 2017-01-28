@@ -9,10 +9,10 @@ extern crate enum_primitive;
 
 extern crate num;
 
-mod parser;
-mod opcode;
-
 mod cpu;
+mod instruction;
+mod opcode;
+mod parser;
 
 mod errors {
     error_chain!{}
