@@ -1,4 +1,5 @@
 use glium::glutin::{ElementState, VirtualKeyCode};
+use interconnect::{InterconnectInterface, Operation};
 
 #[derive(Default, Debug)]
 pub struct Gamepad {
@@ -29,5 +30,11 @@ impl Gamepad {
             VirtualKeyCode::P => self.select = key_state == ElementState::Pressed,
             _ => (),
         }
+    }
+}
+
+impl InterconnectInterface for Gamepad {
+    fn handle(&mut self, operation: Operation, address: u32, word: u32) {
+        unimplemented!()
     }
 }
