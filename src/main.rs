@@ -13,10 +13,14 @@ extern crate num;
 extern crate glium;
 
 mod cpu;
+mod display;
+mod game_boy_advance;
+mod gamepad;
 mod instruction;
+mod interconnect;
 mod opcode;
 mod parser;
-mod gamepad;
+mod utils;
 
 mod errors {
     error_chain!{}
@@ -24,30 +28,36 @@ mod errors {
 use errors::*;
 quick_main!(run);
 
-use glium::{DisplayBuild, Surface};
 use glium::glutin::Event;
+use glium::{DisplayBuild, Surface};
+use interconnect::InterconnectWrite;
 
 fn run() -> Result<()> {
-    println!("Hello World!");
+    let mut gba = game_boy_advance::GameBoyAdvance::new();
 
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    // Program courtesy of https://www.reinterpretcast.com/writing-a-game-boy-advance-game
+    // Write into the I/O registers, setting video display parameters.
+    let ioram_base = 0x04000000;
+    // Use video mode 3 (in BG2, a 16bpp bitmap in VRAM)
+    gba.interconnect.write(ioram_base, 0x03);
+    // Enable BG2 (BG0 = 1, BG1 = 2, BG2 = 4, ...)
+    gba.interconnect.write(ioram_base, 0x03);
 
-    let mut gamepad = gamepad::Gamepad::default();
+    let vram_base = 0x06000000;
+    gba.interconnect.write(vram_base + 80 * 240 + 115, 0b11111_00000_00000_0);
+    gba.interconnect.write(vram_base + 80 * 240 + 120, 0b00000_11111_00000_0);
+    gba.interconnect.write(vram_base + 80 * 240 + 125, 0b00000_00000_11111_0);
 
     loop {
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish().unwrap();
-
-        for ev in display.poll_events() {
+        for ev in gba.interconnect.display.display.poll_events() {
             match ev {
                 Event::KeyboardInput(key_state, _, Some(virtual_key_code))
-                    => gamepad.update(key_state, virtual_key_code),
+                    => gba.interconnect.gamepad.update(key_state, virtual_key_code),
                 Event::Closed => return Ok(()),
                 _ => (),
             }
 
-            println!("Keyboard state: {:?}", gamepad);
+            println!("Keyboard state: {:?}", gba.interconnect.gamepad);
         }
     }
 }
