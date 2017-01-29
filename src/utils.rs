@@ -1,22 +1,18 @@
-#[derive(Debug)]
-pub struct RGB {
-    red: u8,
-    green: u8,
-    blue: u8,
+pub fn u1u5u5u5_to_u5u5u5u1(u1u5u5u5: u16) -> u16 {
+    (u1u5u5u5 & 0b0_00000_00000_11111) << 11 | // Red
+        (u1u5u5u5 & 0b0_00000_11111_00000) << 1  | // Green
+        (u1u5u5u5 & 0b0_11111_00000_00000) >> 9 // Blue
 }
 
-impl RGB {
-    pub fn as_u8(&self) -> (u8, u8, u8) {
-        (0, 0, 0)
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::u1u5u5u5_to_u5u5u5u1;
 
-impl From<u16> for RGB {
-    fn from(num: u16) -> Self {
-        RGB {
-            red: (num & 0b0000000000011111) as u8,
-            green: ((num & 0b0000001111100000) >> 5) as u8,
-            blue: ((num & 0b0111110000000000) >> 10) as u8,
-        }
+    #[test]
+    fn test_display_format_conversion() {
+        let gba_format = 0b0_10001_11111_00000;
+        let display_format = 0b00000_11111_10001_0;
+
+        assert_eq!(u1u5u5u5_to_u5u5u5u1(gba_format), display_format);
     }
 }

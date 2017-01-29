@@ -2,7 +2,7 @@ use interconnect::InterconnectWrite;
 use glium::{self, DisplayBuild, Frame, Surface};
 use glium::texture::RawImage2d;
 use glium::texture::ClientFormat;
-use utils::RGB;
+use utils::u1u5u5u5_to_u5u5u5u1;
 
 pub struct Display {
     pub display: glium::backend::glutin_backend::GlutinFacade,
@@ -105,14 +105,7 @@ impl Display {
 
 impl InterconnectWrite for Display {
     fn write(&mut self, address: u32, word: u32) {
-        let u1u5u5u5 = word as u16;
-        let u5u5u5u1 = (
-                (u1u5u5u5 & 0b0_00000_00000_11111) << 11 | // Red
-                (u1u5u5u5 & 0b0_00000_11111_00000) << 1  | // Green
-                (u1u5u5u5 & 0b0_11111_00000_00000) >> 10   // Blue
-        );
-        self.buf[address as usize] = u5u5u5u1;
-
+        self.buf[address as usize] = u1u5u5u5_to_u5u5u5u1(word as u16);
         self.vsync();
     }
 }
