@@ -49,10 +49,9 @@ impl Display {
             }
         "#;
 
-        let program = glium::Program::from_source(&display,
-                                                  vertex_shader_src,
-                                                  fragment_shader_src,
-                                                  None).unwrap();
+        let program =
+            glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None)
+                .unwrap();
 
         Display {
             display: display,
@@ -62,14 +61,12 @@ impl Display {
     }
 
     fn vsync(&self) {
-        let shape = vec![
-            Vertex { position: [-1.0, -1.0] },
-            Vertex { position: [1.0, -1.0] },
-            Vertex { position: [-1.0, 1.0] },
-            Vertex { position: [-1.0, 1.0] },
-            Vertex { position: [1.0, -1.0] },
-            Vertex { position: [1.0, 1.0] },
-        ];
+        let shape = vec![Vertex { position: [-1.0, -1.0] },
+                         Vertex { position: [1.0, -1.0] },
+                         Vertex { position: [-1.0, 1.0] },
+                         Vertex { position: [-1.0, 1.0] },
+                         Vertex { position: [1.0, -1.0] },
+                         Vertex { position: [1.0, 1.0] }];
 
         let vertex_buffer = glium::VertexBuffer::new(&self.display, &shape).unwrap();
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
@@ -83,7 +80,8 @@ impl Display {
         };
 
         let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
-        let sampler = texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
+        let sampler = texture.sampled()
+            .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest);
         let uniforms = uniform! {
             tex: sampler,
         };
@@ -91,10 +89,11 @@ impl Display {
         let mut target = self.display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.draw(&vertex_buffer,
-                    &indices,
-                    &self.program,
-                    &uniforms,
-                    &Default::default()).unwrap();
+                  &indices,
+                  &self.program,
+                  &uniforms,
+                  &Default::default())
+            .unwrap();
         target.finish().unwrap();
 
     }
