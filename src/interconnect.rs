@@ -76,4 +76,3 @@ impl InterconnectWrite for Interconnect {
         self.handle(Operation::Write, address, word);
     }
 }
-
