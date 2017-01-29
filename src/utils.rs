@@ -1,22 +1,18 @@
-#[derive(Debug)]
-pub struct RGB {
-    red: u8,
-    green: u8,
-    blue: u8,
+pub fn gba_to_display_format(gba_format: u16) -> u16 {
+    (gba_format & 0b0_00000_00000_11111) << 11 | // Red
+        (gba_format & 0b0_00000_11111_00000) << 1  | // Green
+        (gba_format & 0b0_11111_00000_00000) >> 9 // Blue
 }
 
-impl RGB {
-    pub fn as_u8(&self) -> (u8, u8, u8) {
-        (0, 0, 0)
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::gba_to_display_format;
 
-impl From<u16> for RGB {
-    fn from(num: u16) -> Self {
-        RGB {
-            red: (num & 0b0000000000011111) as u8,
-            green: ((num & 0b0000001111100000) >> 5) as u8,
-            blue: ((num & 0b0111110000000000) >> 10) as u8,
-        }
+    #[test]
+    fn test_display_format_conversion() {
+        let gba_format = 0b0_10001_11111_00000;
+        let display_format = 0b00000_11111_10001_0;
+
+        assert_eq!(gba_to_display_format(gba_format), display_format);
     }
 }
