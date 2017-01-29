@@ -1,5 +1,5 @@
 use glium::glutin::{ElementState, VirtualKeyCode};
-use interconnect::{InterconnectInterface, Operation};
+use interconnect::{InterconnectRead};
 
 #[derive(Default, Debug)]
 pub struct Gamepad {
@@ -33,8 +33,8 @@ impl Gamepad {
     }
 }
 
-impl InterconnectInterface for Gamepad {
-    fn handle(&mut self, operation: Operation, address: u32, word: u32) {
-        unimplemented!()
+impl InterconnectRead for Gamepad {
+    fn read(&self, address: u32) -> u32 {
+        0
     }
 }
