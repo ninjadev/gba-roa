@@ -105,7 +105,13 @@ impl Display {
 
 impl InterconnectWrite for Display {
     fn write(&mut self, address: u32, word: u32) {
-        self.buf[address as usize] = word as u16;
+        let u1u5u5u5 = word as u16;
+        let u5u5u5u1 = (
+                (u1u5u5u5 & 0b0_00000_00000_11111) << 11 | // Red
+                (u1u5u5u5 & 0b0_00000_11111_00000) << 1  | // Green
+                (u1u5u5u5 & 0b0_11111_00000_00000) >> 10   // Blue
+        );
+        self.buf[address as usize] = u5u5u5u1;
 
         self.vsync();
     }
