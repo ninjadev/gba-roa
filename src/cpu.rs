@@ -16,7 +16,7 @@ pub struct ARM7TDMI {
 
 impl ARM7TDMI {
     pub fn new() -> ARM7TDMI {
-        let reg_gpr = [0x00010001; 16];
+        let reg_gpr = [0x00000011; 16];
         let reg_banked = [[0xdeadbeef; 7]; 6];
         let sprs_banked = [PSR {
             n: false,
@@ -49,6 +49,7 @@ impl ARM7TDMI {
     pub fn execute_instruction(&mut self, instruction: Instruction) {
         match instruction {
             AddSub { opcode, operand, source_register, destination_register } => {
+                use opcode::OpcodeAddSub::*;
                 match opcode {
                     AddRegister => {
                         self.register_instruction(operand,
@@ -56,10 +57,32 @@ impl ARM7TDMI {
                                                   destination_register,
                                                   |rs, rn| rs + rn)
                     }
+                    SubRegister => {
+                        self.register_instruction(operand,
+                                                  source_register,
+                                                  destination_register,
+                                                  |rs, rn| rs - rn)
+                    }
+                    AddImmediate => {
+                        self.immediate_instruction(operand,
+                                                   source_register,
+                                                   destination_register,
+                                                   |rs, nn| rs + nn)
+                    }
+                    SubImmediate => {
+                        self.immediate_instruction(operand,
+                                                   source_register,
+                                                   destination_register,
+                                                   |rs, nn| rs - nn)
+                    }
                 }
             }
             _ => (),
         }
+    }
+
+    pub fn get_registers(&mut self) -> [u32; 16] {
+        self.reg_gpr
     }
 
     fn read_register(&mut self, register: u8) -> u32 {
@@ -68,6 +91,17 @@ impl ARM7TDMI {
 
     fn write_register(&mut self, register: u8, value: u32) {
         self.reg_gpr[register as usize] = value;
+    }
+
+    fn immediate_instruction<F>(&mut self, immediate: u8, source: u8, destination: u8, f: F)
+        where F: FnOnce(u32, u32) -> u32
+    {
+        let rs = self.read_register(source);
+        let nn = immediate as u32;
+
+        let result = f(rs, nn);
+
+        self.write_register(destination, result);
     }
 
     fn register_instruction<F>(&mut self, operand: u8, source: u8, destination: u8, f: F)
@@ -117,16 +151,41 @@ mod tests {
 
     #[test]
     fn do_instruction() {
-        let add_immediate = Instruction::AddSub {
+        let add_register = Instruction::AddSub {
             opcode: OpcodeAddSub::AddRegister,
             operand: 7,
-            source_register: 1,
+            source_register: 10,
             destination_register: 0,
+        };
+        let sub_register = Instruction::AddSub {
+            opcode: OpcodeAddSub::SubRegister,
+            operand: 7,
+            source_register: 10,
+            destination_register: 1,
+        };
+        let add_immediate = Instruction::AddSub {
+            opcode: OpcodeAddSub::AddImmediate,
+            operand: 7,
+            source_register: 10,
+            destination_register: 2,
+        };
+        let sub_immediate = Instruction::AddSub {
+            opcode: OpcodeAddSub::SubImmediate,
+            operand: 1,
+            source_register: 10,
+            destination_register: 3,
         };
 
         let mut cpu = ARM7TDMI::new();
+        cpu.execute_instruction(add_register);
+        cpu.execute_instruction(sub_register);
         cpu.execute_instruction(add_immediate);
+        cpu.execute_instruction(sub_immediate);
 
-        println!("{:?}", cpu);
+        let registers = cpu.get_registers();
+        assert_eq!(registers[0], 34); // rd = rs + rn
+        assert_eq!(registers[1], 0); // rd = rs - rn
+        assert_eq!(registers[2], 24); // rd = rs + nn
+        assert_eq!(registers[3], 16); // rd = rs - nn
     }
 }
