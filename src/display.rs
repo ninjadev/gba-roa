@@ -29,6 +29,8 @@ impl Display {
         let height = 240;
 
         let vertex_shader_src = r#"
+            #version 140
+
             in vec2 position;
             out vec2 vuv;
 
@@ -39,6 +41,8 @@ impl Display {
         "#;
 
         let fragment_shader_src = r#"
+            #version 140
+
             in vec2 vuv;
             out vec4 color;
 
