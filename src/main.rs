@@ -41,7 +41,7 @@ fn run() -> Result<()> {
     // Use video mode 3 (in BG2, a 16bpp bitmap in VRAM)
     gba.interconnect.write(ioram_base, 0x03);
     // Enable BG2 (BG0 = 1, BG1 = 2, BG2 = 4, ...)
-    gba.interconnect.write(ioram_base, 0x03);
+    gba.interconnect.write(ioram_base + 1, 0x03);
 
     let vram_base = 0x06000000;
     gba.interconnect.write(vram_base + 80 * 240 + 115, 0b0_00000_00000_11111);
