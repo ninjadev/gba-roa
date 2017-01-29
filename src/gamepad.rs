@@ -1,5 +1,5 @@
 use glium::glutin::{ElementState, VirtualKeyCode};
-use interconnect::{InterconnectRead};
+use interconnect::InterconnectRead;
 
 #[derive(Default, Debug)]
 pub struct Gamepad {

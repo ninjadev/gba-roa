@@ -51,8 +51,9 @@ fn run() -> Result<()> {
     loop {
         for ev in gba.interconnect.display.display.poll_events() {
             match ev {
-                Event::KeyboardInput(key_state, _, Some(virtual_key_code))
-                    => gba.interconnect.gamepad.update(key_state, virtual_key_code),
+                Event::KeyboardInput(key_state, _, Some(virtual_key_code)) => {
+                    gba.interconnect.gamepad.update(key_state, virtual_key_code)
+                }
                 Event::Closed => return Ok(()),
                 _ => (),
             }
