@@ -1,18 +1,11 @@
-pub fn gba_to_display_format(gba_format: u16) -> u16 {
-    (gba_format & 0b0_00000_00000_11111) << 11 | // Red
-        (gba_format & 0b0_00000_11111_00000) << 1  | // Green
-        (gba_format & 0b0_11111_00000_00000) >> 9 // Blue
-}
 
-#[cfg(test)]
-mod tests {
-    use super::gba_to_display_format;
 
-    #[test]
-    fn test_display_format_conversion() {
-        let gba_format = 0b0_10001_11111_00000;
-        let display_format = 0b00000_11111_10001_0;
-
-        assert_eq!(gba_to_display_format(gba_format), display_format);
-    }
+pub fn B5G5R5_to_B8G8R8(B5G5R5: u16) -> u32 {
+    let upscale: [u32; 32] = [0, 8, 16, 25, 33, 41, 49, 58, 66, 74, 82, 90, 99, 107,
+    115, 123, 132, 140, 148, 156, 165, 173, 181, 189, 197, 206, 214, 222, 230, 239,
+    247, 255];
+    upscale[(B5G5R5 & 0b0_00000_00000_11111) as usize] |
+    (upscale[((B5G5R5 & 0b0_00000_11111_00000) >> 5) as usize] << 8) |
+    (upscale[((B5G5R5 & 0b0_11111_00000_00000) >> 10) as usize] << 16) |
+    0xFF000000u32
 }

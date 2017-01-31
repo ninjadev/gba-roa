@@ -1,5 +1,5 @@
-use glium::glutin::{ElementState, VirtualKeyCode};
 use interconnect::InterconnectRead;
+use sdl2::keyboard::Keycode;
 
 #[derive(Default, Debug)]
 pub struct Gamepad {
@@ -16,18 +16,18 @@ pub struct Gamepad {
 }
 
 impl Gamepad {
-    pub fn update(&mut self, key_state: ElementState, virtual_key_code: VirtualKeyCode) {
-        match virtual_key_code {
-            VirtualKeyCode::W => self.up = key_state == ElementState::Pressed,
-            VirtualKeyCode::A => self.left = key_state == ElementState::Pressed,
-            VirtualKeyCode::S => self.down = key_state == ElementState::Pressed,
-            VirtualKeyCode::D => self.right = key_state == ElementState::Pressed,
-            VirtualKeyCode::J => self.a = key_state == ElementState::Pressed,
-            VirtualKeyCode::K => self.b = key_state == ElementState::Pressed,
-            VirtualKeyCode::U => self.left_bumper = key_state == ElementState::Pressed,
-            VirtualKeyCode::I => self.right_bumper = key_state == ElementState::Pressed,
-            VirtualKeyCode::Return => self.start = key_state == ElementState::Pressed,
-            VirtualKeyCode::P => self.select = key_state == ElementState::Pressed,
+    pub fn update(&mut self, pressed: bool, keycode: Keycode) {
+        match keycode {
+            Keycode::W => self.up = pressed,
+            Keycode::A => self.left = pressed,
+            Keycode::S => self.down = pressed,
+            Keycode::D => self.right = pressed,
+            Keycode::J => self.a = pressed,
+            Keycode::K => self.b = pressed,
+            Keycode::U => self.left_bumper = pressed,
+            Keycode::I => self.right_bumper = pressed,
+            Keycode::Return => self.start = pressed,
+            Keycode::P => self.select = pressed,
             _ => (),
         }
     }

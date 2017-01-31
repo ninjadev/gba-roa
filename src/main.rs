@@ -7,10 +7,12 @@ extern crate nom;
 #[macro_use]
 extern crate enum_primitive;
 
+extern crate sdl2;
+
 extern crate num;
 
-#[macro_use]
-extern crate glium;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 
 mod cpu;
 mod display;
@@ -28,8 +30,6 @@ mod errors {
 use errors::*;
 quick_main!(run);
 
-use glium::glutin::Event;
-use glium::{DisplayBuild, Surface};
 use interconnect::InterconnectWrite;
 
 fn run() -> Result<()> {
@@ -48,17 +48,31 @@ fn run() -> Result<()> {
     gba.interconnect.write(vram_base + 80 * 240 + 120, 0b0_00000_11111_00000);
     gba.interconnect.write(vram_base + 80 * 240 + 125, 0b0_11111_00000_00000);
 
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsys = sdl_context.video().unwrap();
+    let window = video_subsys.window(
+        "Game Boy Advance: Rusty Oxidation Action - The ROA Emulator", 240, 160)
+        .position_centered()
+        .opengl()
+        .build()
+        .unwrap();
+
+    let mut renderer = window.renderer().build().unwrap();
+    let mut events = sdl_context.event_pump().unwrap();
+
     loop {
-        for ev in gba.interconnect.display.display.poll_events() {
-            match ev {
-                Event::KeyboardInput(key_state, _, Some(virtual_key_code)) => {
-                    gba.interconnect.gamepad.update(key_state, virtual_key_code)
+        for event in events.poll_iter() {
+            match event {
+                Event::Quit {..} => break,
+                Event::KeyUp {keycode: Some(keycode), ..} => {
+                    gba.interconnect.gamepad.update(true, keycode)
                 }
-                Event::Closed => return Ok(()),
+                Event::KeyDown {keycode: Some(keycode), ..} => {
+                    gba.interconnect.gamepad.update(false, keycode)
+                }
                 _ => (),
             }
-
-            println!("Keyboard state: {:?}", gba.interconnect.gamepad);
+            gba.interconnect.display.draw(&mut renderer);
         }
     }
 }

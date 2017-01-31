@@ -14,4 +14,8 @@ nom = "2.0.1"
 num = "0.1.30"
 gl = "0.6.1"
 libc = "0.2.20"
-glium = "0.16.0"
+
+[dependencies.sdl2]
+version = "0.28.0"
+default-features = false
+features = ["gfx"]
